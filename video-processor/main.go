@@ -37,7 +37,10 @@ func main() {
 	processedVideos := processor.ProcessAll(videos, c.BaseDir)
 	log.Printf("processed [%d] videos", len(processedVideos))
 
-	markPostsPublished(db, processedVideos)
+	err = processor.MergeAll(processedVideos, c.BaseDir, c.OutputPath)
+	check(err)
+
+	// markPostsPublished(db, processedVideos)
 }
 
 func ensureBaseDir(b string) error {

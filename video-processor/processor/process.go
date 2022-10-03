@@ -3,6 +3,7 @@ package processor
 import (
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"path"
 	"strings"
@@ -18,9 +19,10 @@ type ProcessedVideo struct {
 }
 
 const (
-	ffmpeg_quality = "1080k"
-	ffmpeg_command = `ffmpeg -i %s -lavfi %s -vb %s -c:v libx264 -crf 20 %s.mp4 -n`
-	ffmpeg_filters = `[0:v]scale=ih*16/9:-1,boxblur=luma_radius=min(h\,w)/20:luma_power=1:chroma_radius=min(cw\,ch)/20:chroma_power=1[bg];[bg][0:v]overlay=(W-w)/2:(H-h)/2,crop=h=iw*9/16`
+	ffmpeg_merge_command = "ffmpeg -f concat -safe 0 -i %s %s"
+	ffmpeg_quality       = "1080k"
+	ffmpeg_command       = `ffmpeg -i %s -lavfi %s -vb %s -c:v libx264 -crf 20 %s.mp4 -n`
+	ffmpeg_filters       = `[0:v]scale=ih*16/9:-1,boxblur=luma_radius=min(h\,w)/20:luma_power=1:chroma_radius=min(cw\,ch)/20:chroma_power=1[bg];[bg][0:v]overlay=(W-w)/2:(H-h)/2,crop=h=iw*9/16`
 )
 
 func ProcessAll(videos []downloader.Video, base string) []ProcessedVideo {
@@ -51,6 +53,47 @@ func ProcessAll(videos []downloader.Video, base string) []ProcessedVideo {
 	wg.Wait()
 
 	return all
+}
+
+func MergeAll(videos []ProcessedVideo, base, output string) error {
+	t, err := createVideosFile(videos, base)
+	if err != nil {
+		return err
+	}
+	log.Printf("created temp file: %q", t)
+
+	err = runMerge(output, t)
+	if err != nil {
+		return err
+	}
+
+	return os.Remove(t)
+}
+
+func runMerge(o, t string) error {
+	cmdString := fmt.Sprintf(ffmpeg_merge_command, t, o)
+	args := strings.Split(cmdString, " ")
+	log.Printf("running command: %q", cmdString)
+	cmd := exec.Command(args[0], args[1:]...)
+
+	_, err := helpers.RunCmd(cmd)
+	return err
+}
+
+func createVideosFile(videos []ProcessedVideo, base string) (string, error) {
+	n := path.Join(base, "all_videos.txt")
+
+	f, err := os.Create(n)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	for _, v := range videos {
+		f.WriteString(fmt.Sprintf("file %s\n", v.Path))
+	}
+
+	return n, nil
 }
 
 func process(video downloader.Video, base string) (string, error) {
