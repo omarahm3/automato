@@ -16,6 +16,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// Time output: --- WTF!
+// ________________________________________________________
+// Executed in   24.86 mins    fish           external
+//    usr time  131.57 mins    0.00 micros  131.57 mins
+//    sys time    1.89 mins  498.00 micros    1.89 mins
+
+// TODO script is taking so much time to download & process all videos that makes it fail at the end with context deadline exceeded
+// Maybe split 3 functionalities into 3 different packages? (downloader, processor, merger)
+const database_timeout = 1000 * 60 * time.Second
+
 func main() {
 	c, err := config.LoadConfig()
 	check(err)
@@ -23,7 +33,7 @@ func main() {
 	err = ensureBaseDir(c.BaseDir)
 	check(err)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), database_timeout)
 	db, err := database.Connect(c.DatabaseURI, ctx)
 	check(err)
 	defer cancel()
@@ -39,8 +49,24 @@ func main() {
 
 	err = processor.MergeAll(processedVideos, c.BaseDir, c.OutputPath)
 	check(err)
+	log.Println("merged videos into a single video")
 
-	// markPostsPublished(db, processedVideos)
+	markPostsPublished(db, processedVideos)
+
+	err = clean(c)
+	check(err)
+}
+
+func clean(c *config.Config) error {
+	// remove downloads dir
+	d := path.Join(c.BaseDir, "downloads")
+	err := os.RemoveAll(d)
+	if err != nil {
+		return err
+	}
+
+	b := path.Join(c.BaseDir, "blurry")
+	return os.RemoveAll(b)
 }
 
 func ensureBaseDir(b string) error {
