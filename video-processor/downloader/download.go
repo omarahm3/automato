@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"path"
 	"strings"
 	"sync"
 
@@ -16,9 +17,9 @@ type Video struct {
 	Post types.Post
 }
 
-const ydl_command = "youtube-dl %s -q -o ./downloads/%s.%%(ext)s"
+const ydl_command = "youtube-dl %s -q -o %s.%%(ext)s"
 
-func DownloadAll(posts []types.Post) []Video {
+func DownloadAll(posts []types.Post, base string) []Video {
 	var (
 		videos []Video
 		wg     sync.WaitGroup
@@ -30,7 +31,7 @@ func DownloadAll(posts []types.Post) []Video {
 		log.Printf("downloading video of post %q", p.Hash)
 		go func(p types.Post) {
 			log.Printf("calling download %q", p.Hash)
-			downloadedPath, err := download(p.Video, p.Hash)
+			downloadedPath, err := download(p.Video, base, p.Hash)
 			if err != nil {
 				log.Fatalf("error downloading video: %q of this post: %q::: %q", p.Video, p.Hash, err.Error())
 			}
@@ -49,8 +50,9 @@ func DownloadAll(posts []types.Post) []Video {
 	return videos
 }
 
-func download(u, output string) (string, error) {
-	cmdString := fmt.Sprintf(ydl_command, u, output)
+func download(u, base, output string) (string, error) {
+	o := path.Join(base, "downloads", output)
+	cmdString := fmt.Sprintf(ydl_command, u, o)
 	args := strings.Split(cmdString, " ")
 	log.Printf("running command: %q", strings.Join(args, ", "))
 	cmd := exec.Command(args[0], args[1:]...)
