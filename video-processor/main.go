@@ -31,10 +31,10 @@ func main() {
 	posts := getPosts(db, c.PostsLimit)
 	log.Printf("retrieved [%d] posts", len(posts))
 
-	videos := downloader.DownloadAll(posts)
+	videos := downloader.DownloadAll(posts, c.BaseDir)
 	log.Printf("downloaded [%d] videos", len(videos))
 
-	processedVideos := processor.ProcessAll(videos)
+	processedVideos := processor.ProcessAll(videos, c.BaseDir)
 	log.Printf("processed [%d] videos", len(processedVideos))
 
 	markPostsPublished(db, processedVideos)
