@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -24,29 +23,32 @@ func main() {
 	check(err)
 	defer cancel()
 
-	var posts []types.Post
-	err = db.FindUnpublished(&posts, options.Find().SetLimit(1))
-	check(err)
-
+	posts := getPosts(db)
 	log.Printf("retrieved [%d] posts", len(posts))
 
 	videos := downloader.DownloadAll(posts)
-
-	// TODO Instead of removing videos, mark all as published
-	// err = db.RemoveAll()
-	// check(err)
-
 	log.Printf("downloaded [%d] videos", len(videos))
 
 	processedVideos := processor.ProcessAll(videos)
-	fmt.Println(processedVideos)
+	log.Printf("processed [%d] videos", len(processedVideos))
 
+	markPostsPublished(db, processedVideos)
+}
+
+func markPostsPublished(db *database.Database, videos []processor.ProcessedVideo) {
 	var ids []primitive.ObjectID
-	for _, p := range processedVideos {
+	for _, p := range videos {
 		ids = append(ids, p.Video.Post.ID)
 	}
-	err = db.MarkPublished(ids)
+	err := db.MarkPublished(ids)
 	check(err)
+}
+
+func getPosts(db *database.Database) []types.Post {
+	var posts []types.Post
+	err := db.FindUnpublished(&posts, options.Find().SetLimit(1))
+	check(err)
+	return posts
 }
 
 func check(err error) {
