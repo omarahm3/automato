@@ -10,6 +10,7 @@ import (
 	"github.com/omarahm3/automato/types"
 	"github.com/omarahm3/video-processor/config"
 	"github.com/omarahm3/video-processor/downloader"
+	"github.com/omarahm3/video-processor/processor"
 )
 
 func main() {
@@ -25,13 +26,20 @@ func main() {
 	err = db.FindAll(&posts)
 	check(err)
 
+	posts = posts[:1]
+
+	log.Printf("retrieved [%d] posts", len(posts))
+
+	videos := downloader.DownloadAll(posts)
+
+	// TODO Instead of removing videos, mark all as published
 	// err = db.RemoveAll()
 	// check(err)
 
-	videos := downloader.DownloadAll(posts)
-	check(err)
+	log.Printf("downloaded [%d] videos", len(videos))
 
-	fmt.Println(videos)
+	processedVideos := processor.ProcessAll(videos)
+	fmt.Println(processedVideos)
 }
 
 func check(err error) {
