@@ -2,12 +2,16 @@ module github.com/omarahm3/video-processor
 
 go 1.19
 
-require github.com/omarahm3/automato/database v0.0.0
+require (
+	github.com/joho/godotenv v1.4.0
+	github.com/omarahm3/automato/database v0.0.0
+)
 
 require (
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
+	github.com/omarahm3/automato/types v0.0.0
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.1 // indirect
@@ -20,3 +24,5 @@ require (
 )
 
 replace github.com/omarahm3/automato/database v0.0.0 => ../database/
+
+replace github.com/omarahm3/automato/types v0.0.0 => ../types/

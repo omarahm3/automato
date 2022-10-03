@@ -18,6 +18,20 @@ func (d *Database) InsertMany(data []interface{}) error {
 	return err
 }
 
+func (d *Database) FindAll(results interface{}) error {
+	cur, err := d.Collection.Find(d.ctx, bson.D{})
+	if err != nil {
+		return err
+	}
+
+	return cur.All(d.ctx, results)
+}
+
+func (d *Database) RemoveAll() error {
+	_, err := d.Collection.DeleteMany(d.ctx, bson.D{})
+	return err
+}
+
 func (d *Database) EnsureIndex(key string) error {
 	_, err := d.Collection.Indexes().CreateOne(d.ctx, mongo.IndexModel{
 		Keys: bson.M{

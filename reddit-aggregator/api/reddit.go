@@ -11,22 +11,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/omarahm3/automato/types"
 	"github.com/omarahm3/reddit-aggregator/config"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const api_url = "https://www.reddit.com/r"
 
-type Post struct {
-	ID        primitive.ObjectID `json:"id" bson:"_id"`
-	Hash      string             `json:"hash" bson:"hash"`
-	Title     string             `json:"title" bson:"title"`
-	Video     string             `json:"video" bson:"video"`
-	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
-	UpdatedAt time.Time          `json:"updated_at" bson:"updated_at"`
-}
-
-func Fetch(c *config.Config) ([]Post, error) {
+func Fetch(c *config.Config) ([]types.Post, error) {
 	u := buildUrl(c)
 	log.Printf("sending request: %s", u)
 
@@ -45,7 +37,7 @@ func Fetch(c *config.Config) ([]Post, error) {
 	return posts, nil
 }
 
-func parsePosts(b []byte) ([]Post, error) {
+func parsePosts(b []byte) ([]types.Post, error) {
 	var raw map[string]interface{}
 	err := json.Unmarshal(b, &raw)
 	if err != nil {
@@ -56,7 +48,7 @@ func parsePosts(b []byte) ([]Post, error) {
 
 	children := data["children"].([]interface{})
 
-	var posts []Post
+	var posts []types.Post
 	for _, v := range children {
 		rawv := v.(map[string]interface{})
 		post := rawv["data"].(map[string]interface{})
@@ -70,7 +62,7 @@ func parsePosts(b []byte) ([]Post, error) {
 		redditVideo := media["reddit_video"].(map[string]interface{})
 		videoUrl := redditVideo["fallback_url"].(string)
 
-		posts = append(posts, Post{
+		posts = append(posts, types.Post{
 			ID:        primitive.NewObjectID(),
 			Hash:      hashit(videoUrl),
 			Title:     t,
