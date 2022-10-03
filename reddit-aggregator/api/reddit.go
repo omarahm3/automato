@@ -69,6 +69,7 @@ func parsePosts(b []byte) ([]types.Post, error) {
 			Video:     videoUrl,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
+			Published: false,
 		})
 	}
 

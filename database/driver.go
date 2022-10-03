@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -20,6 +21,49 @@ func (d *Database) InsertMany(data []interface{}) error {
 
 func (d *Database) FindAll(results interface{}) error {
 	cur, err := d.Collection.Find(d.ctx, bson.D{})
+	if err != nil {
+		return err
+	}
+
+	return cur.All(d.ctx, results)
+}
+
+func (d *Database) FindUnpublished(results interface{}, opts ...*options.FindOptions) error {
+	cur, err := d.Collection.Find(d.ctx, bson.D{{
+		Key:   "published",
+		Value: false,
+	}}, opts...)
+	if err != nil {
+		return err
+	}
+
+	return cur.All(d.ctx, results)
+}
+
+func (d *Database) MarkPublished(ids []primitive.ObjectID) error {
+	_, err := d.Collection.UpdateMany(d.ctx, bson.D{{
+		Key: "_id",
+		Value: bson.D{{
+			Key:   "$in",
+			Value: ids,
+		}},
+	}}, bson.D{{
+		Key: "$set",
+		Value: bson.D{{
+			Key:   "published",
+			Value: true,
+		}},
+	}})
+
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func (d *Database) Find(filters, results interface{}, opts ...*options.FindOptions) error {
+	cur, err := d.Collection.Find(d.ctx, filters, opts...)
 	if err != nil {
 		return err
 	}

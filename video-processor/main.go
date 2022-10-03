@@ -11,6 +11,8 @@ import (
 	"github.com/omarahm3/video-processor/config"
 	"github.com/omarahm3/video-processor/downloader"
 	"github.com/omarahm3/video-processor/processor"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
@@ -23,10 +25,8 @@ func main() {
 	defer cancel()
 
 	var posts []types.Post
-	err = db.FindAll(&posts)
+	err = db.FindUnpublished(&posts, options.Find().SetLimit(1))
 	check(err)
-
-	posts = posts[:1]
 
 	log.Printf("retrieved [%d] posts", len(posts))
 
@@ -40,6 +40,13 @@ func main() {
 
 	processedVideos := processor.ProcessAll(videos)
 	fmt.Println(processedVideos)
+
+	var ids []primitive.ObjectID
+	for _, p := range processedVideos {
+		ids = append(ids, p.Video.Post.ID)
+	}
+	err = db.MarkPublished(ids)
+	check(err)
 }
 
 func check(err error) {
