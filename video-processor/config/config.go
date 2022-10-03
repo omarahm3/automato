@@ -8,6 +8,8 @@ import (
 
 type Config struct {
 	DatabaseURI string
+	BaseDir     string
+	PostsLimit  int
 }
 
 func LoadConfig() (*Config, error) {
@@ -18,6 +20,8 @@ func LoadConfig() (*Config, error) {
 
 	return &Config{
 		DatabaseURI: myEnv["DATABASE_URI"],
+		BaseDir:     myEnv["BASE_DIR"],
+		PostsLimit:  ToInt(myEnv["POSTS_LIMIT"]),
 	}, nil
 }
 
