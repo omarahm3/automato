@@ -1,0 +1,19 @@
+#!/bin/bash
+# vim:ft=bash
+
+if [[ -z $1 ]]; then
+  echo "you must enter a package to sync"
+	exit 1
+fi
+
+if [[ -z $2 ]]; then
+  echo "you must enter package path"
+	exit 1
+fi
+
+case "$1" in
+  *)
+    go mod edit -require=$1@v0.0.0
+    go mod edit -replace=$1@v0.0.0=$2
+    ;;
+esac

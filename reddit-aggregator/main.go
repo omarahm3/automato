@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/omarahm3/automato/database"
 	"github.com/omarahm3/reddit-aggregator/api"
 	"github.com/omarahm3/reddit-aggregator/config"
-	"github.com/omarahm3/reddit-aggregator/database"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

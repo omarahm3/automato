@@ -1,4 +1,4 @@
-module github.com/omarahm3/automato
+module github.com/omarahm3/automato/database
 
 go 1.19
 
