@@ -7,7 +7,7 @@ require (
 	github.com/omarahm3/automato/database v0.0.0
 )
 
-require github.com/panjf2000/ants/v2 v2.5.0 // indirect
+require github.com/panjf2000/ants/v2 v2.5.0
 
 require (
 	github.com/golang/snappy v0.0.1 // indirect
