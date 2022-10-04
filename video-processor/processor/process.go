@@ -35,9 +35,9 @@ func ProcessAll(videos []downloader.Video, base string) []ProcessedVideo {
 
 	for _, v := range videos {
 		go func(v downloader.Video) {
-			path, err := process(v, base)
+			path, out, err := process(v, base)
 			if err != nil {
-				log.Fatalf("error processing video: %q of this post: %q::: %q", v.Path, v.Post.Hash, err.Error())
+				log.Fatalf("error processing video: %q of this post: %q::: %q\ncommand output: %s", v.Path, v.Post.Hash, err.Error(), out)
 			}
 
 			log.Printf("processed video: %q with hash %q on %q\n", v.Post.Title, v.Post.Hash, path)
@@ -96,17 +96,17 @@ func createVideosFile(videos []ProcessedVideo, base string) (string, error) {
 	return n, nil
 }
 
-func process(video downloader.Video, base string) (string, error) {
+func process(video downloader.Video, base string) (string, string, error) {
 	o := path.Join(base, "blurry", video.Post.Hash)
 	cmdString := fmt.Sprintf(ffmpeg_command, video.Path, ffmpeg_filters, ffmpeg_quality, o)
 	args := strings.Split(cmdString, " ")
 
 	log.Printf("running command: %q", cmdString)
 	cmd := exec.Command(args[0], args[1:]...)
-	o, err := helpers.RunCmd(cmd)
-	if strings.Contains(o, "already exists. Exiting") {
+	out, err := helpers.RunCmd(cmd)
+	if strings.Contains(out, "already exists. Exiting") {
 		err = nil
 	}
 
-	return args[len(args)-2], err
+	return args[len(args)-2], out, err
 }
