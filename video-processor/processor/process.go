@@ -61,22 +61,23 @@ func MergeAll(videos []ProcessedVideo, base, output string) error {
 	}
 	log.Printf("created temp file: %q", t)
 
-	err = runMerge(output, t)
+	out, err := runMerge(output, t)
 	if err != nil {
+		log.Printf("error running command, output: %q", out)
 		return err
 	}
 
 	return os.Remove(t)
 }
 
-func runMerge(o, t string) error {
+func runMerge(o, t string) (string, error) {
 	cmdString := fmt.Sprintf(ffmpeg_merge_command, t, o)
 	args := strings.Split(cmdString, " ")
 	log.Printf("running command: %q", cmdString)
 	cmd := exec.Command(args[0], args[1:]...)
 
-	_, err := helpers.RunCmd(cmd)
-	return err
+	o, err := helpers.RunCmd(cmd)
+	return o, err
 }
 
 func createVideosFile(videos []ProcessedVideo, base string) (string, error) {
