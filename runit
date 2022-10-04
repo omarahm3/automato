@@ -1,0 +1,22 @@
+#!/bin/bash
+# vim:ft=bash
+
+cd build || return
+
+mkdir -p logs
+
+echo "------------------ Running Aggregator ------------------"
+./reddit-aggregator | tee logs/reddit-aggregator.log
+echo "------------------ Aggregator is Done ------------------"
+echo
+echo "------------------ Running Processor ------------------"
+./video-processor | tee logs/video-processor.log
+echo "------------------ Processor is Done ------------------"
+echo
+echo "------------------ Running Uploader ------------------"
+./uploader | tee logs/uploader.log
+echo "------------------ Uploader is Done ------------------"
+echo
+
+echo "Automato is done"
+cd ..

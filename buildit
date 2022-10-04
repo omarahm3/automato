@@ -1,0 +1,16 @@
+#!/bin/bash
+# vim:ft=bash
+
+mkdir -p build/
+
+cd ./reddit-aggregator && go build -v && mv reddit-aggregator ../build/ && cd ..
+cd ./video-processor && go build -v && mv video-processor ../build/ && cd ..
+cd ./uploader && go build -v && mv uploader ../build/ && cd ..
+
+echo "--------------"
+echo "build is done"
+echo "now under 'build/' create:"
+echo "    - .env file"
+echo "    - .credentials.json file"
+echo "    - client_secrets.json file"
+echo "then run './runit'"
