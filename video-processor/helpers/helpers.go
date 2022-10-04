@@ -3,6 +3,8 @@ package helpers
 import (
 	"os/exec"
 	"sync"
+
+	"github.com/panjf2000/ants/v2"
 )
 
 func RunCmd(cmd *exec.Cmd) (string, error) {
@@ -18,7 +20,32 @@ type ThreadElement struct {
 	Element interface{}
 }
 
-func Threadify(numOfThreads int, elements []ThreadElement, f func(args ...interface{})) {
+func Threadify(numOfThreads int, elements []ThreadElement, f func(args ...interface{})) error {
+	var wg sync.WaitGroup
+
+	p, err := ants.NewPoolWithFunc(numOfThreads, func(i interface{}) {
+		f(i)
+		wg.Done()
+	})
+	if err != nil {
+		return err
+	}
+
+	defer p.Release()
+
+	for i := 0; i < len(elements); i++ {
+		wg.Add(1)
+		err = p.Invoke(i)
+		if err != nil {
+			return err
+		}
+	}
+
+	wg.Wait()
+	return nil
+}
+
+func threadify_manual_implementation(numOfThreads int, elements []ThreadElement, f func(args ...interface{})) {
 	length := len(elements)
 	each := length / numOfThreads
 	acc := length - (numOfThreads * each)
