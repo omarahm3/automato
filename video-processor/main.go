@@ -44,7 +44,7 @@ func main() {
 	videos := downloader.DownloadAll(posts, c.BaseDir, c.Threads)
 	log.Printf("downloaded [%d] videos", len(videos))
 
-	processedVideos := processor.ProcessAll(videos, c.BaseDir)
+	processedVideos := processor.ProcessAll(videos, c.BaseDir, c.Threads)
 	log.Printf("processed [%d] videos", len(processedVideos))
 
 	err = processor.MergeAll(processedVideos, c.BaseDir, c.OutputPath)

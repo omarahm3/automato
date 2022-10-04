@@ -19,9 +19,10 @@ type Video struct {
 const ydl_command = "youtube-dl %s -q -o %s.%%(ext)s"
 
 func DownloadAll(posts []types.Post, base string, threads int) []Video {
-	var videos []Video
-
-	var elements []helpers.ThreadElement
+	var (
+		videos   []Video
+		elements []helpers.ThreadElement
+	)
 
 	for _, p := range posts {
 		elements = append(elements, helpers.ThreadElement{

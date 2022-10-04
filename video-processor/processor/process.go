@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"path"
 	"strings"
-	"sync"
 
 	"github.com/omarahm3/video-processor/downloader"
 	"github.com/omarahm3/video-processor/helpers"
@@ -25,32 +24,32 @@ const (
 	ffmpeg_filters       = `[0:v]scale=ih*16/9:-1,boxblur=luma_radius=min(h\,w)/20:luma_power=1:chroma_radius=min(cw\,ch)/20:chroma_power=1[bg];[bg][0:v]overlay=(W-w)/2:(H-h)/2,crop=h=iw*9/16`
 )
 
-func ProcessAll(videos []downloader.Video, base string) []ProcessedVideo {
+func ProcessAll(videos []downloader.Video, base string, threads int) []ProcessedVideo {
 	var (
-		wg  sync.WaitGroup
-		all []ProcessedVideo
+		all      []ProcessedVideo
+		elements []helpers.ThreadElement
 	)
 
-	wg.Add(len(videos))
-
 	for _, v := range videos {
-		go func(v downloader.Video) {
-			path, out, err := process(v, base)
-			if err != nil {
-				log.Fatalf("error processing video: %q of this post: %q::: %q\ncommand output: %s", v.Path, v.Post.Hash, err.Error(), out)
-			}
-
-			log.Printf("processed video: %q with hash %q on %q\n", v.Post.Title, v.Post.Hash, path)
-
-			all = append(all, ProcessedVideo{
-				Path:  path,
-				Video: v,
-			})
-			wg.Done()
-		}(v)
+		elements = append(elements, helpers.ThreadElement{
+			Element: v,
+		})
 	}
 
-	wg.Wait()
+	helpers.Threadify(threads, elements, func(args ...interface{}) {
+		v := args[0].(downloader.Video)
+		path, out, err := process(v, base)
+		if err != nil {
+			log.Fatalf("error processing video: %q of this post: %q::: %q\ncommand output: %s", v.Path, v.Post.Hash, err.Error(), out)
+		}
+
+		log.Printf("processed video: %q with hash %q on %q\n", v.Post.Title, v.Post.Hash, path)
+
+		all = append(all, ProcessedVideo{
+			Path:  path,
+			Video: v,
+		})
+	})
 
 	return all
 }
