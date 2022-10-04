@@ -7,11 +7,12 @@ import (
 )
 
 type Config struct {
-	DatabaseURI string
-	BaseDir     string
-	OutputPath  string
-	PostsLimit  int
-	Threads     int
+	DatabaseURI       string
+	BaseDir           string
+	OutputPath        string
+	PostsLimit        int
+	DownloaderThreads int
+	ProcessorThreads  int
 }
 
 func LoadConfig() (*Config, error) {
@@ -21,11 +22,12 @@ func LoadConfig() (*Config, error) {
 	}
 
 	return &Config{
-		DatabaseURI: myEnv["DATABASE_URI"],
-		BaseDir:     myEnv["BASE_DIR"],
-		OutputPath:  myEnv["OUTPUT_PATH"],
-		PostsLimit:  ToInt(myEnv["POSTS_LIMIT"]),
-		Threads:     ToInt(myEnv["THREADS"]),
+		DatabaseURI:       myEnv["DATABASE_URI"],
+		BaseDir:           myEnv["BASE_DIR"],
+		OutputPath:        myEnv["OUTPUT_PATH"],
+		PostsLimit:        ToInt(myEnv["POSTS_LIMIT"]),
+		DownloaderThreads: ToInt(myEnv["DOWNLOADER_THREADS"]),
+		ProcessorThreads:  ToInt(myEnv["PROCESSOR_THREADS"]),
 	}, nil
 }
 

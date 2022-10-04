@@ -41,10 +41,10 @@ func main() {
 	posts := getPosts(db, c.PostsLimit)
 	log.Printf("retrieved [%d] posts", len(posts))
 
-	videos := downloader.DownloadAll(posts, c.BaseDir, c.Threads)
+	videos := downloader.DownloadAll(posts, c.BaseDir, c.DownloaderThreads)
 	log.Printf("downloaded [%d] videos", len(videos))
 
-	processedVideos := processor.ProcessAll(videos, c.BaseDir, c.Threads)
+	processedVideos := processor.ProcessAll(videos, c.BaseDir, c.ProcessorThreads)
 	log.Printf("processed [%d] videos", len(processedVideos))
 
 	err = processor.MergeAll(processedVideos, c.BaseDir, c.OutputPath)
