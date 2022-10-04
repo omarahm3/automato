@@ -43,7 +43,7 @@ func main() {
 	log.Printf("retrieved [%d] posts", len(posts))
 
 	if len(posts) == 0 {
-		fmt.Printf("nothing to process")
+		fmt.Println("nothing to process")
 		os.Exit(0)
 	}
 
