@@ -1,6 +1,10 @@
 #!/bin/bash
 # vim:ft=bash
 
+echo "Building...."
+./buildit
+echo "build is done"
+
 cd build || return
 
 mkdir -p logs
