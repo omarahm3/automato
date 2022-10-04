@@ -101,5 +101,6 @@ func check(err error) {
 		return
 	}
 
-	log.Fatalln("error occurred", err)
+	log.Println("error occurred")
+	panic(err)
 }
