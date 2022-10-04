@@ -23,8 +23,8 @@ type ThreadElement struct {
 func Threadify(numOfThreads int, elements []ThreadElement, f func(args ...interface{})) error {
 	var wg sync.WaitGroup
 
-	p, err := ants.NewPoolWithFunc(numOfThreads, func(i interface{}) {
-		f(i)
+	p, err := ants.NewPoolWithFunc(numOfThreads, func(e interface{}) {
+		f(e)
 		wg.Done()
 	})
 	if err != nil {
@@ -33,9 +33,9 @@ func Threadify(numOfThreads int, elements []ThreadElement, f func(args ...interf
 
 	defer p.Release()
 
-	for i := 0; i < len(elements); i++ {
+	for _, e := range elements {
 		wg.Add(1)
-		err = p.Invoke(i)
+		err = p.Invoke(e.Element)
 		if err != nil {
 			return err
 		}
