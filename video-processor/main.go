@@ -47,6 +47,11 @@ func main() {
 		os.Exit(0)
 	}
 
+	if len(posts) < c.PostsLimit {
+		fmt.Printf("less than videos limit %q", c.PostsLimit)
+		os.Exit(0)
+	}
+
 	videos := downloader.DownloadAll(posts, c.BaseDir, c.DownloaderThreads)
 	log.Printf("downloaded [%d] videos", len(videos))
 
