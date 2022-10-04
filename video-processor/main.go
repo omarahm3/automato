@@ -41,7 +41,7 @@ func main() {
 	posts := getPosts(db, c.PostsLimit)
 	log.Printf("retrieved [%d] posts", len(posts))
 
-	videos := downloader.DownloadAll(posts, c.BaseDir)
+	videos := downloader.DownloadAll(posts, c.BaseDir, c.Threads)
 	log.Printf("downloaded [%d] videos", len(videos))
 
 	processedVideos := processor.ProcessAll(videos, c.BaseDir)

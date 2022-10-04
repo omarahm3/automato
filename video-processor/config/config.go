@@ -11,6 +11,7 @@ type Config struct {
 	BaseDir     string
 	OutputPath  string
 	PostsLimit  int
+	Threads     int
 }
 
 func LoadConfig() (*Config, error) {
@@ -24,6 +25,7 @@ func LoadConfig() (*Config, error) {
 		BaseDir:     myEnv["BASE_DIR"],
 		OutputPath:  myEnv["OUTPUT_PATH"],
 		PostsLimit:  ToInt(myEnv["POSTS_LIMIT"]),
+		Threads:     ToInt(myEnv["THREADS"]),
 	}, nil
 }
 
