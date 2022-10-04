@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -40,6 +41,11 @@ func main() {
 
 	posts := getPosts(db, c.PostsLimit)
 	log.Printf("retrieved [%d] posts", len(posts))
+
+	if len(posts) == 0 {
+		fmt.Printf("nothing to process")
+		os.Exit(0)
+	}
 
 	videos := downloader.DownloadAll(posts, c.BaseDir, c.DownloaderThreads)
 	log.Printf("downloaded [%d] videos", len(videos))
