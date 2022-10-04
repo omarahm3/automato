@@ -18,10 +18,16 @@ func main() {
 	service, err := youtube.New(client)
 	check(err)
 
+	title, err := c.GetTitle()
+	check(err)
+
+	description, err := c.GetDescription()
+	check(err)
+
 	upload := &youtube.Video{
 		Snippet: &youtube.VideoSnippet{
-			Title:       "Top 10 best/worst Tiktoks today",
-			Description: "Prepare yourself for the definitely not automated dose of Tiktoks",
+			Title:       title,
+			Description: description,
 		},
 		Status: &youtube.VideoStatus{
 			PrivacyStatus: c.PrivacyStatus,

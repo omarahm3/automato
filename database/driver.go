@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -17,6 +18,35 @@ type Database struct {
 func (d *Database) InsertMany(data []interface{}) error {
 	_, err := d.Collection.InsertMany(d.ctx, data, options.InsertMany().SetOrdered(false))
 	return err
+}
+
+func (d *Database) FindRandomOfToday(size int, results interface{}) error {
+	t := time.Now()
+	start := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	end := time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 59, t.Location())
+
+	matchStage := bson.D{{
+		Key: "$match",
+		Value: bson.D{{
+			Key: "created_at",
+			Value: bson.M{
+				"$gte": start,
+				"$lt":  end,
+			},
+		}},
+	}}
+	sampleStage := bson.D{{
+		Key: "$sample",
+		Value: bson.M{
+			"size": size,
+		},
+	}}
+	cur, err := d.Collection.Aggregate(d.ctx, mongo.Pipeline{matchStage, sampleStage})
+	if err != nil {
+		return err
+	}
+
+	return cur.All(d.ctx, results)
 }
 
 func (d *Database) FindAll(results interface{}) error {
