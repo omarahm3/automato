@@ -29,6 +29,9 @@ TOKEN_FILE=.credentials.json
 SECRETS_FILE=client_secrets.json
 OUTPUT_FILE=/tmp/final.mp4
 PRIVACY_STATUS=unlisted
+VIDEO_INFO_TYPE=random
+VIDEO_TITLE=Top 10 best/cringiest Tiktoks today
+VIDEO_DESCRIPTION=Prepare yourself for the definitely not automated dose of Tiktoks
 ```
 
 for publishing Youtube video, you'll need to have `./build/client_secrets.json` file that you download from [Google cloud API credentials console](https://console.cloud.google.com/apis/credentials)
